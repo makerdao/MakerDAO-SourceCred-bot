@@ -1,0 +1,38 @@
+{
+  "name": "makerdao-sourcecred-bot",
+  "version": "1.0.0",
+  "description": "A Discord bot to handle SourceCred integrations",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "tsc && node dist/app.js",
+    "dev": "ts-node-dev --watch --respawn --transpile-only src/index.ts",
+    "lint": "eslint . --ext .js,.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hernandoagf/MakerDAO-SourceCred-bot.git"
+  },
+  "keywords": [
+    "MakerDAO",
+    "SourceCred"
+  ],
+  "author": "hernandoagf",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hernandoagf/MakerDAO-SourceCred-bot/issues"
+  },
+  "homepage": "https://github.com/hernandoagf/MakerDAO-SourceCred-bot#readme",
+  "devDependencies": {
+    "@types/node": "^16.11.12",
+    "@typescript-eslint/eslint-plugin": "^5.6.0",
+    "@typescript-eslint/parser": "^5.6.0",
+    "eslint": "^8.4.1",
+    "ts-node-dev": "^1.1.8",
+    "typescript": "^4.5.3"
+  },
+  "dependencies": {
+    "discord.js": "^13.3.1",
+    "dotenv": "^10.0.0"
+  }
+}
