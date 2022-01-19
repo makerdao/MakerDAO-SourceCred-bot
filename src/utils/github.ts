@@ -134,5 +134,5 @@ export const createOptInPullRequest = async (
     base: 'master',
   })
 
-  return prInfo.data.url
+  return prInfo.data.html_url
 }
