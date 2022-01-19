@@ -6,7 +6,7 @@ import {
   getLedgerManager,
   setSCPayoutAddressAndActivate,
 } from '../utils/sourcecred'
-import { copyLedgerFromGHPages, createOptInPullRequest } from '../utils/github'
+import { copyLedgerFromGHPages } from '../utils/github'
 
 const SOURCECRED_ADMINS = process.env.SOURCECRED_ADMINS?.split(', ') || []
 
@@ -41,11 +41,9 @@ export default {
         ledgerManager,
         userInformationList
       )
-      const optInPullRequestURL = await createOptInPullRequest(newBranchName)
 
       await interaction.editReply(
-        `Users successfully activated, PR: ${optInPullRequestURL}
-        \`\`\`${modifiedUsers.map((u) => `- ${u.discourse}`).join('\n')}\`\`\``
+        `Users successfully activated in new branch \`${newBranchName}\``
       )
 
       try {

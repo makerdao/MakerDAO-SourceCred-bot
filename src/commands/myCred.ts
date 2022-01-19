@@ -3,6 +3,7 @@ import { CommandInteraction } from 'discord.js'
 import { formatEther } from 'ethers/lib/utils'
 
 import { getCredGrainViewParticipants } from '../utils/sourcecred'
+import { credEmbed } from '../embed'
 
 const weiToEther = (wei: string): number =>
   +parseFloat(formatEther(wei)).toFixed(2)
@@ -10,12 +11,9 @@ const weiToEther = (wei: string): number =>
 export default {
   data: new SlashCommandBuilder()
     .setName('sc-cred')
-    .setDescription('Fetches cred for specified user')
+    .setDescription('Fetches cred and grain information for specified user')
     .addStringOption((option) =>
-      option
-        .setName('user')
-        .setDescription('Sourcecred username')
-        .setRequired(true)
+      option.setName('user').setDescription('Forum username').setRequired(true)
     ),
   async execute(interaction: CommandInteraction) {
     try {
@@ -24,44 +22,54 @@ export default {
       const username = interaction.options.getString('user', true)
       const participants = await getCredGrainViewParticipants()
       const user = participants.find((p) =>
-        p.identity.aliases.find((alias) => alias.address.includes(username))
+        p.identity.aliases.find((alias) =>
+          alias.address.toLowerCase().includes(username.toLowerCase())
+        )
       )
 
-      if (!user) await interaction.editReply('User not found')
-      else
-        await interaction.editReply(`
-      ${username}
-      Total cred: ${Math.round(user.cred)}
-      Cred this week: ${Math.round(
-        user.credPerInterval[user.credPerInterval.length - 1]
-      )}
-      Cred last week: ${Math.round(
-        user.credPerInterval[user.credPerInterval.length - 2]
-      )}
-      Cred this month: ${Math.round(
-        user.credPerInterval
-          .slice(
-            user.credPerInterval.length - 5,
-            user.credPerInterval.length - 1
-          )
-          .reduce((a, b) => a + b)
-      )}
+      if (!user) {
+        await interaction.editReply('User not found')
+        return
+      }
 
-      Total grain: ${weiToEther(user.grainEarned)} DAI
-      Grain earned last week: ${weiToEther(
-        user.grainEarnedPerInterval[user.grainEarnedPerInterval.length - 2]
-      )} DAI
-      Grain earned this month: ${user.grainEarnedPerInterval
-        .slice(
-          user.grainEarnedPerInterval.length - 5,
-          user.grainEarnedPerInterval.length - 1
-        )
-        .map((grain) => weiToEther(grain))
-        .reduce((a, b) => a + b)} DAI
-      `)
+      const cred = {
+        total: Math.round(user.cred),
+        thisWeek: Math.round(
+          user.credPerInterval[user.credPerInterval.length - 1]
+        ),
+        lastWeek: Math.round(
+          user.credPerInterval[user.credPerInterval.length - 2]
+        ),
+        thisMonth: Math.round(
+          user.credPerInterval
+            .slice(
+              user.credPerInterval.length - 5,
+              user.credPerInterval.length - 1
+            )
+            .reduce((a, b) => a + b)
+        ),
+      }
+
+      const grain = {
+        total: weiToEther(user.grainEarned),
+        lastWeek: weiToEther(
+          user.grainEarnedPerInterval[user.grainEarnedPerInterval.length - 2]
+        ),
+        thisMonth: user.grainEarnedPerInterval
+          .slice(
+            user.grainEarnedPerInterval.length - 5,
+            user.grainEarnedPerInterval.length - 1
+          )
+          .map((grain) => weiToEther(grain))
+          .reduce((a, b) => a + b),
+      }
+
+      await interaction.editReply({
+        embeds: [credEmbed(user.identity.name, cred, grain)],
+      })
     } catch (err) {
       console.log(err)
-      interaction.reply('There was an error fetching information')
+      interaction.editReply('There was an error fetching information')
     }
   },
 }

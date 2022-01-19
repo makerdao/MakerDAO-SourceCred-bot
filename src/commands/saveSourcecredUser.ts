@@ -79,6 +79,7 @@ export default {
       const collector = interaction.channel.createMessageComponentCollector({
         filter,
         time: 900000,
+        max: 1,
       })
       collector.on('collect', async (i) => {
         const isDiscourseVerified = await handleDiscourseCheck(
@@ -93,7 +94,6 @@ export default {
           components: [],
         })
 
-        collector.stop()
         if (!isDiscourseVerified) return
 
         const userSaved = await pushUserToIPFS(discourse, address)
