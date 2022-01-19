@@ -1,12 +1,16 @@
 import { REST } from '@discordjs/rest'
 import { Routes } from 'discord-api-types/v9'
 import fs from 'fs'
+import { extname } from 'path'
 require('dotenv').config()
+
+const commandsExt = extname(__filename)
+const commandsDir = commandsExt === '.ts' ? './src/commands' : './dist/commands'
 
 const commands: any[] = []
 const commandFiles = fs
-  .readdirSync('./src/commands')
-  .filter((file) => file.endsWith('.ts'))
+  .readdirSync(commandsDir)
+  .filter((file) => file.endsWith(commandsExt))
 
 const clientId = process.env.CLIENT_ID || ''
 const guildId = process.env.GUILD_ID || ''

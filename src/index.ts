@@ -1,13 +1,17 @@
 import { Client, Intents, Collection } from 'discord.js'
 import fs from 'fs'
+import { extname } from 'path'
 require('dotenv').config()
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] })
 
+const commandsExt = extname(__filename)
+const commandsDir = commandsExt === '.ts' ? './src/commands' : './dist/commands'
+
 const commands: Collection<string, any> = new Collection()
 const commandFiles = fs
-  .readdirSync('./src/commands')
-  .filter((file) => file.endsWith('.ts'))
+  .readdirSync(commandsDir)
+  .filter((file) => file.endsWith(commandsExt))
 
 for (const file of commandFiles) {
   const command = require(`./commands/${file}`)
