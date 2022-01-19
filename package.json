@@ -4,11 +4,10 @@
   "description": "A Discord bot to handle SourceCred integrations",
   "main": "dist/index.js",
   "scripts": {
-    "start": "tsc && node dist/app.js",
+    "start": "tsc && node dist/deployCommands.js && node dist/index.js",
     "dev": "ts-node-dev --watch --respawn --transpile-only src/index.ts",
     "reload-commands": "ts-node-dev --watch --respawn --transpile-only src/deployCommands.ts",
-    "lint": "eslint . --ext .js,.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint . --ext .js,.ts"
   },
   "repository": {
     "type": "git",
@@ -44,6 +43,6 @@
     "sourcecred": "^0.10.2"
   },
   "engines": {
-    "node": "16.x"
+    "node": ">16.x"
   }
 }
