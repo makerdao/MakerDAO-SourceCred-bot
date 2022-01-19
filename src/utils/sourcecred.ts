@@ -1,5 +1,8 @@
+// @ts-ignore
 import { sourcecred } from 'sourcecred'
 import { User } from './ipfs'
+
+import { DAI_REDEMPTIONS_ACCOUNT_ID, TOKEN_CONTRACT } from '../constants'
 
 interface SCAlias {
   address: string
@@ -21,6 +24,15 @@ interface CredGrainViewParticipant {
   credPerInterval: number[]
   grainEarned: string
   grainEarnedPerInterval: string[]
+}
+
+interface LedgerAccount {
+  balance: string
+  paid: string
+  identity: SCIdentity
+  active: boolean
+  mergedIdentityIds: string[]
+  payoutAddresses: Map<string, string>
 }
 
 const GITHUB_API_TOKEN = process.env.GITHUB_API_TOKEN || ''
@@ -49,8 +61,14 @@ export const getCredGrainViewParticipants = async (): Promise<
   return credGrainView.participants()
 }
 
+export const getLedgerAccounts = async (): Promise<LedgerAccount[]> => {
+  const instance = await getSCInstance()
+  const ledger = await instance.readLedger()
+  return ledger.accounts()
+}
+
 export const getLedgerManager = (branch: string): any => {
-  const storage = new sourcecred.ledger.storage.GithubStorage({
+  const storage = new sourcecred.ledger.storage.WritableGithubStorage({
     apiToken: GITHUB_API_TOKEN,
     repo: `${GH_ORG}/${GH_REPO}`,
     branch,
@@ -83,7 +101,7 @@ export const setSCPayoutAddressAndActivate = async (
         account.identity.id, // user identity id
         user.address, // user wallet address
         '1', // Ethereum mainnet chain id
-        '0x6b175474e89094c44da98b954eedeac495271d0f' // DAI token address
+        TOKEN_CONTRACT // DAI token address
       )
 
     // Activate account
@@ -98,4 +116,28 @@ export const setSCPayoutAddressAndActivate = async (
     throw `An error occurred when trying to commit the new ledger: ${persistRes.error}`
 
   return modifiedUsers
+}
+
+export const burnGrain = async (
+  ledgerManager: any,
+  grainBurnList: { name: string; amount: string }[]
+): Promise<void> => {
+  await ledgerManager.reloadLedger()
+  const ledger = ledgerManager.ledger
+
+  // Transfer grain from all users in the grainBurnList to the DAI redemptions account
+  for (const { name, amount } of grainBurnList) {
+    const accountId = ledger.accountByName(name)?.identity.id
+    ledger.transferGrain({
+      from: accountId,
+      to: DAI_REDEMPTIONS_ACCOUNT_ID,
+      amount,
+      memo: null,
+    })
+  }
+
+  // Sync changes with remote ledger (GH instance)
+  const persistRes = await ledgerManager.persist()
+  if (persistRes.error)
+    throw `An error occurred when trying to commit the new ledger: ${persistRes.error}`
 }
