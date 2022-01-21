@@ -59,7 +59,7 @@ export default {
       )
 
       await interaction.editReply({
-        content: `Users successfully activated in new branch \`${newBranchName}\`. Activated users will now be removed from IPFS, do you wish to continue?`,
+        content: `Users successfully activated in new branch \`${newBranchName}\`. Attempting to remove activated users from IPFS, do you wish to continue?`,
         components: [row],
       })
 
@@ -79,7 +79,7 @@ export default {
 
         if (i.customId === 'reject') {
           await i.followUp(
-            'Command canceled, users will not be removed from IPFS.'
+            'Command cancelled, users will not be removed from IPFS.'
           )
           return
         } else {

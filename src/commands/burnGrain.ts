@@ -72,7 +72,7 @@ export default {
 
         if (i.customId === 'reject') {
           await i.followUp(
-            'Command canceled by the user. If the distribution file is not up to date, try running the `/sc-payments-csv` command again to generate a new file based on the latest grain distribution.'
+            'Command cancelled, if the distribution file is not up to date, try running the `/sc-payments-csv` command again to generate a new file based on the latest grain distribution.'
           )
         } else {
           await i.followUp('Transferring grain for users, please wait...')
