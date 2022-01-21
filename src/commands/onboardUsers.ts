@@ -12,7 +12,7 @@ const SOURCECRED_ADMINS = process.env.SOURCECRED_ADMINS?.split(', ') || []
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('sc-onboard')
+    .setName('onboard-users')
     .setDescription(
       'Admin only command: activates user identities in the SourceCred instance'
     ),

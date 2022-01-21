@@ -6,17 +6,19 @@ Discord bot to automate SourceCred instance interactions
 
 ### Public commands
 
-- `/sc-cred [user]`: fetches cred and grain information for specified Discourse username
-- `/sc-opt-in [discourse] [address]`: allows users to opt in for SC distributions. Checks Discourse account ownership and pushes username and wallet address to IPFS to be eventually synced to the SC instance
+- `/info`: information about available SourceCred commands
+- `/fetch-cred [user]`: fetches cred and grain information for specified Discourse username
+- `/opt-in [discourse] [address]`: allows users to opt in for SC distributions. Checks Discourse account ownership and pushes username and wallet address to IPFS to be eventually synced to the SC instance
   - discourse: discourse username
   - address: wallet address
 
 ### Admin only commands
 
-- `/sc-payments-csv [threshold]`: generates SC payments CSV file filtering by users who have accumulated an amount greater than or equal to the threshold passed (generated CSV file is compatible with Gnosis Safe CSV Airdrop app)
-- `/sc-onboard`: fetches user list from IPFS, creates a new branch on GitHub repo, adds wallet addresses into users SC identities and activates user accounts in the SC instance. Returns the name of the new GitHub branch created
-- `/sc-burn-grain [branch-name]`: transfers grain from SC instance users accounts to the burn grain account
-  - branch-name: name of the GitHub branch created on the `/sc-onboard` command
+- `/admin-info`: information about available SourceCred admin commands
+- `/payments-csv [threshold]`: generates SC payments CSV file filtering by users who have accumulated an amount greater than or equal to the threshold passed (generated CSV file is compatible with Gnosis Safe CSV Airdrop app)
+- `/onboard-users`: fetches user list from IPFS, creates a new branch on GitHub repo, adds wallet addresses into users SC identities and activates user accounts in the SC instance. Returns the name of the new GitHub branch created
+- `/burn-grain [branch-name]`: transfers grain from SC instance users accounts to the burn grain account
+  - branch-name: name of the GitHub branch created on the `/onboard-users` command
 
 ## How to set up
 

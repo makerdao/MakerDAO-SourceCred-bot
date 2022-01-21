@@ -13,12 +13,9 @@ import { getLedgerManager, burnGrain } from '../utils/sourcecred'
 
 const SOURCECRED_ADMINS = process.env.SOURCECRED_ADMINS?.split(', ') || []
 
-// const weiToEther = (wei: string): number =>
-//   +parseFloat(formatEther(wei)).toFixed(2)
-
 export default {
   data: new SlashCommandBuilder()
-    .setName('sc-burn-grain')
+    .setName('burn-grain')
     .setDescription(
       'Admin only command: Burns users grain by transferring it to the Dai Redemptions account'
     )

@@ -15,7 +15,7 @@ const SOURCECRED_ADMINS = process.env.SOURCECRED_ADMINS?.split(', ') || []
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('sc-payments-csv')
+    .setName('payments-csv')
     .setDescription(
       'Admin only command: Generates SC payments CSV file for threshold specified'
     )

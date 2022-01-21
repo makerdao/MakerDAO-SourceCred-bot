@@ -16,7 +16,7 @@ import { pushUserToIPFS } from '../utils/ipfs'
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('sc-opt-in')
+    .setName('opt-in')
     .setDescription('Opt in for SourceCred')
     .addStringOption((option) =>
       option

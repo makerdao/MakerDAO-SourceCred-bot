@@ -1,4 +1,4 @@
-import { parseEther } from 'ethers/lib/utils'
+import { parseEther, formatEther } from 'ethers/lib/utils'
 
 export const formatGrainBurnList = (
   paymentsBuffer: Buffer
@@ -14,3 +14,6 @@ export const formatGrainBurnList = (
 
       return { name, amount }
     })
+
+export const weiToEther = (wei: string): number =>
+  +parseFloat(formatEther(wei)).toFixed(2)

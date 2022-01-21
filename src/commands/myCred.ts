@@ -1,16 +1,13 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from 'discord.js'
-import { formatEther } from 'ethers/lib/utils'
 
 import { getCredGrainViewParticipants } from '../utils/sourcecred'
 import { credEmbed } from '../embed'
-
-const weiToEther = (wei: string): number =>
-  +parseFloat(formatEther(wei)).toFixed(2)
+import { weiToEther } from '../utils/helpers'
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('sc-cred')
+    .setName('fetch-cred')
     .setDescription('Fetches cred and grain information for specified user')
     .addStringOption((option) =>
       option.setName('user').setDescription('Forum username').setRequired(true)
