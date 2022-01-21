@@ -86,3 +86,60 @@ export function credEmbed(
     },
   })
 }
+
+export function infoEmbed(): MessageEmbed {
+  return new MessageEmbed({
+    title: 'SourceCred bot information',
+    description: 'Information about available SourceCred commands.',
+    color: '#1AAB9B',
+    fields: [
+      {
+        name: '/info',
+        value: 'Information about available SourceCred commands',
+      },
+      {
+        name: '/fetch-cred [user]',
+        value:
+          'Fetches cred and grain information for specified Discourse username',
+      },
+      {
+        name: '/opt-in [discourse] [address]',
+        value:
+          'Allows users to opt in for SC distributions. Checks Discourse account ownership and pushes [discourse] username and wallet [address] to IPFS to be eventually synced to the SC instance',
+      },
+    ],
+    timestamp: new Date(),
+    footer: {
+      text: 'makerdao.sourcecred.io',
+    },
+  })
+}
+
+export function adminInfoEmbed(): MessageEmbed {
+  return new MessageEmbed({
+    title: 'SourceCred bot admin information',
+    description: 'Information about available SourceCred admin commands.',
+    color: '#1AAB9B',
+    fields: [
+      {
+        name: '/payments-csv [threshold]',
+        value:
+          'Generates SC payments CSV file filtering by users who have accumulated an amount greater than or equal to the [threshold] passed',
+      },
+      {
+        name: '/onboard-users',
+        value:
+          'Adds wallet addresses into users SC identities and activates user accounts in the SC instance',
+      },
+      {
+        name: '/burn-grain [branch-name]',
+        value:
+          'Transfers grain from SC instance users accounts to the Dai Redemptions account after payments have been made (branch-name: name of the GitHub branch created on the `/onboard-users` command)',
+      },
+    ],
+    timestamp: new Date(),
+    footer: {
+      text: 'makerdao.sourcecred.io',
+    },
+  })
+}
