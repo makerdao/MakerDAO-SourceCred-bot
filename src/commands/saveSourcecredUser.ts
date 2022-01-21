@@ -14,6 +14,8 @@ import {
 } from '../utils/discourseVerification'
 import { pushUserToIPFS } from '../utils/ipfs'
 
+const SOURCECRED_ADMINS = process.env.SOURCECRED_ADMINS?.split(', ') || []
+
 export default {
   data: new SlashCommandBuilder()
     .setName('opt-in')
@@ -32,6 +34,14 @@ export default {
     ),
   async execute(interaction: CommandInteraction) {
     try {
+      if (!SOURCECRED_ADMINS.includes(interaction.user.id)) {
+        await interaction.reply({
+          content: 'Error: admin-only command',
+          ephemeral: true,
+        })
+        return
+      }
+
       await interaction.deferReply({ ephemeral: true })
 
       const rawDiscourse = interaction.options.getString('discourse', true)

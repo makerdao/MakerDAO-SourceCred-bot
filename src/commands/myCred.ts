@@ -5,6 +5,8 @@ import { getCredGrainViewParticipants } from '../utils/sourcecred'
 import { credEmbed } from '../embed'
 import { weiToEther } from '../utils/helpers'
 
+const SOURCECRED_ADMINS = process.env.SOURCECRED_ADMINS?.split(', ') || []
+
 export default {
   data: new SlashCommandBuilder()
     .setName('fetch-cred')
@@ -14,6 +16,14 @@ export default {
     ),
   async execute(interaction: CommandInteraction) {
     try {
+      if (!SOURCECRED_ADMINS.includes(interaction.user.id)) {
+        await interaction.reply({
+          content: 'Error: admin-only command',
+          ephemeral: true,
+        })
+        return
+      }
+
       await interaction.deferReply({ ephemeral: true })
 
       const username = interaction.options.getString('user', true)
