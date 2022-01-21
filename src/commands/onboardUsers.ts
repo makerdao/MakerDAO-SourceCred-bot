@@ -1,5 +1,10 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
-import { CommandInteraction } from 'discord.js'
+import {
+  CommandInteraction,
+  MessageActionRow,
+  MessageButton,
+  MessageComponentInteraction,
+} from 'discord.js'
 
 import { fetchUsersFromIPFS, removeUsersFromIPFS } from '../utils/ipfs'
 import {
@@ -42,24 +47,63 @@ export default {
         userInformationList
       )
 
-      await interaction.editReply(
-        `Users successfully activated in new branch \`${newBranchName}\``
+      const row = new MessageActionRow().addComponents(
+        new MessageButton()
+          .setCustomId('confirm')
+          .setLabel('Yes')
+          .setStyle('SUCCESS'),
+        new MessageButton()
+          .setCustomId('reject')
+          .setLabel('No')
+          .setStyle('DANGER')
       )
 
-      try {
-        await removeUsersFromIPFS(modifiedUsers)
-        await interaction.followUp({
-          content: 'Modified users successfully removed from IPFS',
-          ephemeral: true,
-        })
-      } catch (ipfsErr) {
-        console.log(ipfsErr)
-        await interaction.followUp({
-          content:
-            'There was an issue trying to remove users from IPFS, please check the logs',
-          ephemeral: true,
-        })
-      }
+      await interaction.editReply({
+        content: `Users successfully activated in new branch \`${newBranchName}\`. Activated users will now be removed from IPFS, do you wish to continue?`,
+        components: [row],
+      })
+
+      if (!interaction.channel)
+        throw 'There was an error fetching the Discord channel'
+      const filter = (i: MessageComponentInteraction) =>
+        (i.customId === 'confirm' || i.customId === 'reject') &&
+        i.user.id === interaction.user.id
+      const collector = interaction.channel.createMessageComponentCollector({
+        filter,
+        time: 900000,
+        max: 1,
+      })
+
+      collector.on('collect', async (i) => {
+        await i.update({ components: [] })
+
+        if (i.customId === 'reject') {
+          await i.followUp({
+            content: 'Command canceled, users will not be removed from IPFS.',
+            ephemeral: true,
+          })
+        } else {
+          await i.followUp({
+            content: 'Removing users from IPFS, please wait...',
+            ephemeral: true,
+          })
+
+          try {
+            await removeUsersFromIPFS(modifiedUsers)
+            await i.followUp({
+              content: 'Modified users successfully removed from IPFS',
+              ephemeral: true,
+            })
+          } catch (ipfsErr) {
+            console.log(ipfsErr)
+            await i.followUp({
+              content:
+                'There was an issue trying to remove users from IPFS, please check the logs',
+              ephemeral: true,
+            })
+          }
+        }
+      })
     } catch (err) {
       console.log(err)
       if (typeof err === 'string') interaction.editReply(err)
