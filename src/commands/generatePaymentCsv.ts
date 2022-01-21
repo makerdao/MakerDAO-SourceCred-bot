@@ -34,7 +34,7 @@ export default {
         })
         return
       }
-      await interaction.deferReply({ ephemeral: true })
+      await interaction.deferReply()
 
       const threshold = interaction.options.getNumber('threshold', true)
       const THRESHOLD_DAI = parseEther(threshold.toString())

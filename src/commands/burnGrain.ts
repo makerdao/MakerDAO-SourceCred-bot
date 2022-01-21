@@ -34,7 +34,7 @@ export default {
         })
         return
       }
-      await interaction.deferReply({ ephemeral: true })
+      await interaction.deferReply()
 
       const row = new MessageActionRow().addComponents(
         new MessageButton()
@@ -71,26 +71,20 @@ export default {
         await i.update({ components: [] })
 
         if (i.customId === 'reject') {
-          await i.followUp({
-            content:
-              'Command canceled by the user. If the distribution file is not up to date, try running the `/sc-payments-csv` command again to generate a new file based on the latest grain distribution.',
-            ephemeral: true,
-          })
+          await i.followUp(
+            'Command canceled by the user. If the distribution file is not up to date, try running the `/sc-payments-csv` command again to generate a new file based on the latest grain distribution.'
+          )
         } else {
-          await i.followUp({
-            content: 'Transferring grain for users, please wait...',
-            ephemeral: true,
-          })
+          await i.followUp('Transferring grain for users, please wait...')
 
           const branchName = interaction.options.getString('branch-name', true)
           const ledgerManager = await getLedgerManager(branchName)
           const grainBurnList = formatGrainBurnList(paymentsBuffer)
           await burnGrain(ledgerManager, grainBurnList)
 
-          await i.followUp({
-            content: `Grain succesfully transferred to the Dai Redemptions account for users on branch \`${branchName}\``,
-            ephemeral: true,
-          })
+          await i.followUp(
+            `Grain succesfully transferred to the Dai Redemptions account for users on branch \`${branchName}\``
+          )
         }
       })
     } catch (err) {

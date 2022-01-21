@@ -78,29 +78,21 @@ export default {
         await i.update({ components: [] })
 
         if (i.customId === 'reject') {
-          await i.followUp({
-            content: 'Command canceled, users will not be removed from IPFS.',
-            ephemeral: true,
-          })
+          await i.followUp(
+            'Command canceled, users will not be removed from IPFS.'
+          )
+          return
         } else {
-          await i.followUp({
-            content: 'Removing users from IPFS, please wait...',
-            ephemeral: true,
-          })
+          await i.followUp('Removing users from IPFS, please wait...')
 
           try {
             await removeUsersFromIPFS(modifiedUsers)
-            await i.followUp({
-              content: 'Modified users successfully removed from IPFS',
-              ephemeral: true,
-            })
+            await i.followUp('Modified users successfully removed from IPFS')
           } catch (ipfsErr) {
             console.log(ipfsErr)
-            await i.followUp({
-              content:
-                'There was an issue trying to remove users from IPFS, please check the logs',
-              ephemeral: true,
-            })
+            await i.followUp(
+              'There was an issue trying to remove users from IPFS, please check the logs'
+            )
           }
         }
       })
