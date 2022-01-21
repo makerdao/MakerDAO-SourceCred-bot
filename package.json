@@ -4,8 +4,8 @@
   "description": "A Discord bot to handle SourceCred integrations",
   "main": "dist/index.js",
   "scripts": {
-    "start": "tsc && node dist/deployCommands.js && node dist/index.js",
-    "tsc": "tsc",
+    "start": "npm run build && node dist/deployCommands.js && node dist/index.js",
+    "build": "tsc",
     "dev": "ts-node-dev --watch --respawn --transpile-only src/index.ts",
     "reload-commands": "ts-node-dev --watch --respawn --transpile-only src/deployCommands.ts",
     "lint": "eslint . --ext .js,.ts"
