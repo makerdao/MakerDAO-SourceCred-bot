@@ -44,9 +44,9 @@ export const fetchUsersFromIPFS = async (): Promise<User[]> => {
     { headers: { Authorization: PINATA_AUTHORIZATION_TOKEN } }
   )
   const pinListBody = await pinListRes.json()
-  const pinList: string[] = pinListBody.rows.map(
-    (pin: Row) => pin.ipfs_pin_hash
-  )
+  const pinList: string[] = pinListBody.rows
+    .map((pin: Row) => pin.ipfs_pin_hash)
+    .reverse()
   let userData: User[] = []
 
   for (const pin of pinList) {
