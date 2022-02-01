@@ -70,11 +70,15 @@ export default {
         components: [row],
       })
 
-      if (!interaction.channel)
+      const interactionChannel =
+        interaction.channel ||
+        (await interaction.client.channels.fetch(interaction.channelId))
+
+      if (!interactionChannel?.isText())
         throw 'There was an error fetching the Discord channel'
       const filter = (i: MessageComponentInteraction) =>
         i.customId === 'confirm' && i.user.id === interaction.user.id
-      const collector = interaction.channel.createMessageComponentCollector({
+      const collector = interactionChannel.createMessageComponentCollector({
         filter,
         time: 900000,
         max: 1,
@@ -105,9 +109,10 @@ export default {
     } catch (err) {
       console.error(err)
       if (typeof err === 'string')
-        interaction.reply({
+        interaction.editReply({
           content: err,
-          ephemeral: true,
+          embeds: [],
+          components: [],
         })
       else
         interaction.reply({
