@@ -4,12 +4,13 @@ const PINATA_AUTHORIZATION_TOKEN = process.env.PINATA_AUTHORIZATION_TOKEN || ''
 
 export const pushUserToIPFS = async (
   discourse: string,
-  address: string
+  address: string,
+  action: string
 ): Promise<boolean> => {
   try {
     const body = {
       pinataMetadata: { name: discourse },
-      pinataContent: { discourse, address },
+      pinataContent: { discourse, address, action },
     }
 
     const res = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
@@ -31,6 +32,7 @@ export const pushUserToIPFS = async (
 export interface User {
   discourse: string
   address: string
+  action: string
   ipfsPinHash: string
 }
 
@@ -51,7 +53,8 @@ export const fetchUsersFromIPFS = async (): Promise<User[]> => {
 
   for (const pin of pinList) {
     const pinRes = await fetch(`https://gateway.pinata.cloud/ipfs/${pin}`)
-    const pinBody: { discourse: string; address: string } = await pinRes.json()
+    const pinBody: { discourse: string; address: string; action: string } =
+      await pinRes.json()
     userData.push({
       ...pinBody,
       ipfsPinHash: pin,

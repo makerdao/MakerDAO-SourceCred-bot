@@ -6,42 +6,31 @@ import {
   MessageComponentInteraction,
 } from 'discord.js'
 import fetch from 'node-fetch'
-import { isAddress, getAddress } from 'ethers/lib/utils'
 
 import {
   handleDiscourseVerify,
   handleDiscourseCheck,
 } from '../utils/discourseVerification'
 import { pushUserToIPFS } from '../utils/ipfs'
-import { ADD_ACTION } from '../constants'
+import { REMOVE_ACTION } from '../constants'
 
 const SOURCECRED_ADMINS = process.env.SOURCECRED_ADMINS?.split(', ') || []
-const WHITELISTED_USERS = process.env.WHITELISTED_USERS?.split(', ') || []
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('opt-in')
-    .setDescription('Opt in for SourceCred')
+    .setName('opt-out')
+    .setDescription('Opt out of SourceCred')
     .addStringOption((option) =>
       option
         .setName('discourse')
         .setDescription('Your Discourse username')
         .setRequired(true)
-    )
-    .addStringOption((option) =>
-      option
-        .setName('address')
-        .setDescription('Your wallet address')
-        .setRequired(true)
     ),
   async execute(interaction: CommandInteraction) {
     try {
-      if (
-        !SOURCECRED_ADMINS.includes(interaction.user.id) ||
-        !WHITELISTED_USERS.includes(interaction.user.id)
-      ) {
+      if (!SOURCECRED_ADMINS.includes(interaction.user.id)) {
         await interaction.reply({
-          content: 'Error: command temporarily available only for testers',
+          content: 'Error: admin-only command',
           ephemeral: true,
         })
         return
@@ -50,7 +39,6 @@ export default {
       await interaction.deferReply({ ephemeral: true })
 
       const rawDiscourse = interaction.options.getString('discourse', true)
-      const rawAddress = interaction.options.getString('address', true)
 
       const discourseRes = await fetch(
         `https://forum.makerdao.com/u/${rawDiscourse}.json`
@@ -59,14 +47,9 @@ export default {
         await interaction.editReply('Discourse username not found')
         return
       }
-      if (!isAddress(rawAddress)) {
-        await interaction.editReply('Invalid wallet address provided')
-        return
-      }
 
       const discourseResBody = await discourseRes.json()
       const discourse: string = discourseResBody.user.username
-      const address = getAddress(rawAddress)
       const { verificationCode, verificationEmbed } = handleDiscourseVerify()
 
       const row = new MessageActionRow().addComponents(
@@ -103,7 +86,7 @@ export default {
         )
         await i.update({
           content: isDiscourseVerified
-            ? 'Discourse username successfully verified, saving user information...'
+            ? 'Discourse username successfully verified, pushing remove action to IPFS...'
             : 'Discourse username verification failed, please try again',
           embeds: [],
           components: [],
@@ -111,7 +94,7 @@ export default {
 
         if (!isDiscourseVerified) return
 
-        const userSaved = await pushUserToIPFS(discourse, address, ADD_ACTION)
+        const userSaved = await pushUserToIPFS(discourse, '0x0', REMOVE_ACTION)
         if (userSaved)
           i.editReply('User information successfully pushed to IPFS!')
         else

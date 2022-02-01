@@ -17,7 +17,7 @@ export function verifyDiscourseEmbed(verificationCode: string): MessageEmbed {
   return new MessageEmbed({
     title: 'Verify discourse account',
     description:
-      'Process to verify your account to opt-in for SourceCred distributions.',
+      'Process to verify your account to opt-in or opt-out for SourceCred distributions.',
     color: '#1AAB9B',
     fields: [
       {
@@ -43,7 +43,7 @@ export function credEmbed(
 ): MessageEmbed {
   return new MessageEmbed({
     title: `${username} - Cred and Grain`,
-    description: `Recent cred and cred and grain information for user ${username}`,
+    description: `Recent cred and grain information for user ${username}`,
     color: '#1AAB9B',
     fields: [
       {
@@ -106,6 +106,11 @@ export function infoEmbed(): MessageEmbed {
         name: '/opt-in [discourse] [address]',
         value:
           'Allows users to opt in for SC distributions. Checks Discourse account ownership and pushes [discourse] username and wallet [address] to IPFS to be eventually synced to the SC instance',
+      },
+      {
+        name: '/opt-out [discourse]',
+        value:
+          'Allows users to opt out of SC distributions. Checks Discourse account ownership and pushes [discourse] username to IPFS to be eventually deactivated on the SC instance',
       },
     ],
     timestamp: new Date(),

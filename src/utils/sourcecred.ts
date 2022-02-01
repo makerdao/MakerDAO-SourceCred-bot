@@ -2,7 +2,12 @@
 import { sourcecred } from 'sourcecred'
 import { User } from './ipfs'
 
-import { DAI_REDEMPTIONS_ACCOUNT_ID, TOKEN_CONTRACT } from '../constants'
+import {
+  DAI_REDEMPTIONS_ACCOUNT_ID,
+  TOKEN_CONTRACT,
+  ADD_ACTION,
+  REMOVE_ACTION,
+} from '../constants'
 
 interface SCAlias {
   address: string
@@ -80,7 +85,7 @@ export const getLedgerManager = (branch: string): any => {
   return ledgerManager
 }
 
-export const setSCPayoutAddressAndActivate = async (
+export const setSCPayoutAddressAndActivateOrRemove = async (
   ledgerManager: any,
   userList: User[]
 ): Promise<User[]> => {
@@ -92,20 +97,34 @@ export const setSCPayoutAddressAndActivate = async (
     const account = ledger.accountByAddress(discourseAddress(user.discourse))
     if (!account) continue
 
-    // Add wallet address
-    if (
-      !account.payoutAddresses.size ||
-      account.payoutAddresses.values().next().value !== user.address
-    )
-      ledger.setPayoutAddress(
-        account.identity.id, // user identity id
-        user.address, // user wallet address
-        '1', // Ethereum mainnet chain id
-        TOKEN_CONTRACT // DAI token address
+    if (user.action === ADD_ACTION) {
+      // Add wallet address
+      if (
+        !account.payoutAddresses.size ||
+        account.payoutAddresses.values().next().value !== user.address
       )
+        ledger.setPayoutAddress(
+          account.identity.id, // user identity id
+          user.address, // user wallet address
+          '1', // Ethereum mainnet chain id
+          TOKEN_CONTRACT // DAI token address
+        )
 
-    // Activate account
-    if (!account.active) ledger.activate(account.identity.id)
+      // Activate account
+      if (!account.active) ledger.activate(account.identity.id)
+    } else if (user.action === REMOVE_ACTION) {
+      // Remove wallet address
+      if (!account.payoutAddresses.size)
+        ledger.setPayoutAddress(
+          account.identity.id, // user identity id
+          null, // user wallet address
+          '1', // Ethereum mainnet chain id
+          TOKEN_CONTRACT // DAI token address
+        )
+
+      // Deactivate account
+      if (account.active) ledger.deactivate(account.identity.id)
+    }
 
     modifiedUsers.push(user)
   }

@@ -11,6 +11,8 @@ Discord bot to automate SourceCred instance interactions
 - `/opt-in [discourse] [address]`: allows users to opt in for SC distributions. Checks Discourse account ownership and pushes username and wallet address to IPFS to be eventually synced to the SC instance
   - discourse: discourse username
   - address: wallet address
+- `/opt-out [discourse]`: allows users to opt out of SC distributions. Checks Discourse account ownership and pushes [discourse] username to IPFS to be eventually deactivated on the SC instance
+  - discourse: discourse username
 
 ### Admin only commands
 

@@ -9,7 +9,7 @@ import {
 import { fetchUsersFromIPFS, removeUsersFromIPFS } from '../utils/ipfs'
 import {
   getLedgerManager,
-  setSCPayoutAddressAndActivate,
+  setSCPayoutAddressAndActivateOrRemove,
 } from '../utils/sourcecred'
 import { copyLedgerFromGHPages } from '../utils/github'
 
@@ -42,7 +42,7 @@ export default {
 
       const newBranchName = await copyLedgerFromGHPages()
       const ledgerManager = getLedgerManager(newBranchName)
-      const modifiedUsers = await setSCPayoutAddressAndActivate(
+      const modifiedUsers = await setSCPayoutAddressAndActivateOrRemove(
         ledgerManager,
         userInformationList
       )

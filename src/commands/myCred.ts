@@ -6,6 +6,7 @@ import { credEmbed } from '../embed'
 import { weiToEther } from '../utils/helpers'
 
 const SOURCECRED_ADMINS = process.env.SOURCECRED_ADMINS?.split(', ') || []
+const WHITELISTED_USERS = process.env.WHITELISTED_USERS?.split(', ') || []
 
 export default {
   data: new SlashCommandBuilder()
@@ -16,9 +17,12 @@ export default {
     ),
   async execute(interaction: CommandInteraction) {
     try {
-      if (!SOURCECRED_ADMINS.includes(interaction.user.id)) {
+      if (
+        !SOURCECRED_ADMINS.includes(interaction.user.id) ||
+        !WHITELISTED_USERS.includes(interaction.user.id)
+      ) {
         await interaction.reply({
-          content: 'Error: admin-only command',
+          content: 'Error: command temporarily available only for testers',
           ephemeral: true,
         })
         return
