@@ -27,7 +27,6 @@ Discord bot to automate SourceCred instance interactions
 1. Copy the contents of the `.env.sample` file into a new `.env` file, changing the values to your own.
    - `BOT_TOKEN`: Discord bot token, check [this guide](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token) to know how to create a Discord Bot and obtain a token
    - `CLIENT_ID`: Discord Bot ID
-   - `GUILD_ID`: Discord server ID
    - `SOURCECRED_INSTANCE`: Path to your SourceCred instance (e.g. sourcecred/makerdao-cred/gh-pages)
    - `PINATA_AUTHORIZATION_TOKEN`: Pinata API key in the form of a Bearer token. This application uses Pinata as the IPFS pinning service. Check [Pinata docs](https://docs.pinata.cloud/#your-api-keys) for information on how to get the API key
    - `SOURCECRED_ADMINS`: Discord ID list of users with admin permissions to the SC instance in the formats `'123456789'` or `'123456789, 987654321, 456789123, ...'`

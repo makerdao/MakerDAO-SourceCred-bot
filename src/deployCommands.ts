@@ -13,7 +13,6 @@ const commandFiles = fs
   .filter((file) => file.endsWith(commandsExt))
 
 const clientId = process.env.CLIENT_ID || ''
-const guildId = process.env.GUILD_ID || ''
 const token = process.env.BOT_TOKEN || ''
 
 for (const file of commandFiles) {
@@ -27,7 +26,7 @@ const main = async () => {
   try {
     console.log('Started refreshing application (/) commands.')
 
-    await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
+    await rest.put(Routes.applicationCommands(clientId), {
       body: commands,
     })
 
