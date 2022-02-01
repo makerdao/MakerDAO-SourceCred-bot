@@ -37,7 +37,7 @@ export default {
   async execute(interaction: CommandInteraction) {
     try {
       if (
-        !SOURCECRED_ADMINS.includes(interaction.user.id) ||
+        !SOURCECRED_ADMINS.includes(interaction.user.id) &&
         !WHITELISTED_USERS.includes(interaction.user.id)
       ) {
         await interaction.reply({
