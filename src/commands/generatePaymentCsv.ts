@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { CommandInteraction, MessageAttachment } from 'discord.js'
 import { parseEther, parseUnits, formatEther } from 'ethers/lib/utils'
-import { writeFileSync, readFileSync } from 'fs'
+import { writeFileSync, readFileSync, createReadStream } from 'fs'
 
 import { getLedgerAccounts } from '../utils/sourcecred'
 import {
@@ -10,8 +10,10 @@ import {
   PAYMENTS_CSV_HEADING,
   DAI_REDEMPTIONS_ACCOUNT_ID,
 } from '../constants'
+import { pushDistributionToIPFS } from '../utils/ipfs'
 
 const SOURCECRED_ADMINS = process.env.SOURCECRED_ADMINS?.split(', ') || []
+const SOURCECRED_INSTANCE = process.env.SOURCECRED_INSTANCE || ''
 
 export default {
   data: new SlashCommandBuilder()
@@ -75,8 +77,17 @@ export default {
         `${PAYMENTS_CSV_HEADING}\n${transfersArr.join('\n')}`
       )
 
+      const csvFile = createReadStream('./payments.csv')
+      const txtFile = createReadStream('./payments.txt')
+
+      const ipfsRes = await pushDistributionToIPFS(csvFile, txtFile)
+      if (!ipfsRes)
+        throw 'There was an error trying to push distribution to IPFS'
+
       await interaction.editReply({
-        content: 'Payments CSV file and human readable text file for reference',
+        content: `Payments CSV file and human readable text file for reference \nSC instance: ${
+          SOURCECRED_INSTANCE || 'error: unable to fetch instance name'
+        }`,
         files: [
           new MessageAttachment(readFileSync('./payments.csv'), 'payments.csv'),
           new MessageAttachment(readFileSync('./payments.txt'), 'payments.txt'),
