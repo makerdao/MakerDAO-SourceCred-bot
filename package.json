@@ -42,7 +42,7 @@
     "ethers": "^5.5.2",
     "node-fetch": "^2.6.6",
     "octokit": "^1.7.1",
-    "sourcecred": "^0.10.2"
+    "sourcecred": "^0.11.1"
   },
   "engines": {
     "node": ">16.x"

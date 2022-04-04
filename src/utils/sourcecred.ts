@@ -73,7 +73,7 @@ export const getLedgerAccounts = async (): Promise<LedgerAccount[]> => {
 }
 
 export const getLedgerManager = (branch: string): any => {
-  const storage = new sourcecred.ledger.storage.WritableGithubStorage({
+  const storage = new sourcecred.ledger.storage.GithubStorage({
     apiToken: GITHUB_API_TOKEN,
     repo: `${GH_ORG}/${GH_REPO}`,
     branch,
