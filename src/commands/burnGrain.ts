@@ -1,12 +1,10 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
 import {
   CommandInteraction,
-  MessageAttachment,
   MessageActionRow,
   MessageButton,
   MessageComponentInteraction,
 } from 'discord.js'
-import { readFileSync, statSync } from 'fs'
 import fetch from 'node-fetch'
 
 import { formatGrainBurnList } from '../utils/helpers'
