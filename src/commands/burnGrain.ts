@@ -77,8 +77,11 @@ export default {
           const branchName = interaction.options.getString('branch-name', true)
           const ledgerManager = await getLedgerManager(branchName)
           const distributionRes = await fetch(ipfsUrl)
-          const paymentsBuffer = await distributionRes.arrayBuffer()
-          const grainBurnList = formatGrainBurnList(paymentsBuffer)
+          const paymentsString = await distributionRes.text()
+          const grainBurnList = formatGrainBurnList(paymentsString)
+
+          if (!grainBurnList.length) throw 'No users to transfer grain from'
+
           await burnGrain(ledgerManager, grainBurnList)
 
           await i.followUp(
