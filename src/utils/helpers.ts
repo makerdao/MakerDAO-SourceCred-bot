@@ -1,7 +1,7 @@
 import { parseEther, formatEther } from 'ethers/lib/utils'
 
 export const formatGrainBurnList = (
-  paymentsBuffer: Buffer
+  paymentsBuffer: ArrayBuffer
 ): { name: string; amount: string }[] =>
   paymentsBuffer
     .toString()

@@ -5,6 +5,27 @@ import { ReadStream } from 'fs'
 
 const PINATA_AUTHORIZATION_TOKEN = process.env.PINATA_AUTHORIZATION_TOKEN || ''
 
+export interface User {
+  discourse: string
+  address: string
+  action: string
+  ipfsPinHash: string
+}
+
+interface PinMetadata {
+  name: string
+}
+interface Row {
+  ipfs_pin_hash: string
+  metadata: PinMetadata
+  date_pinned: string
+}
+
+interface DistributionFileData {
+  pinDate: Date
+  ipfsUrl: string
+}
+
 export const pushUserToIPFS = async (
   discourse: string,
   address: string,
@@ -111,20 +132,25 @@ export const fetchDistributionFromIPFS = async (): Promise<
   return transactionData
 }
 
-export interface User {
-  discourse: string
-  address: string
-  action: string
-  ipfsPinHash: string
-}
+export const fetchReadableDistributionFromIPFS =
+  async (): Promise<DistributionFileData> => {
+    const pinListRes = await fetch(
+      'https://api.pinata.cloud/data/pinList?status=pinned',
+      { headers: { Authorization: PINATA_AUTHORIZATION_TOKEN } }
+    )
+    const pinListBody = await pinListRes.json()
+    const distributionFileData: DistributionFileData = pinListBody.rows
+      .find((pin: Row) => pin.metadata.name === 'distribution.txt')
+      ?.map((pin: Row) => ({
+        pinDate: new Date(pin.date_pinned),
+        ipfsUrl: `https://gateway.pinata.cloud/ipfs/${pin.ipfs_pin_hash}`,
+      }))
 
-interface PinMetadata {
-  name: string
-}
-interface Row {
-  ipfs_pin_hash: string
-  metadata: PinMetadata
-}
+    if (!distributionFileData)
+      throw 'No distribution TXT file was found on IPFS'
+
+    return distributionFileData
+  }
 
 export const fetchUsersFromIPFS = async (): Promise<User[]> => {
   const pinListRes = await fetch(

@@ -7,9 +7,11 @@ import {
   MessageComponentInteraction,
 } from 'discord.js'
 import { readFileSync, statSync } from 'fs'
+import fetch from 'node-fetch'
 
 import { formatGrainBurnList } from '../utils/helpers'
 import { getLedgerManager, burnGrain } from '../utils/sourcecred'
+import { fetchReadableDistributionFromIPFS } from '../utils/ipfs'
 
 const SOURCECRED_ADMINS = process.env.SOURCECRED_ADMINS?.split(', ') || []
 
@@ -17,7 +19,7 @@ export default {
   data: new SlashCommandBuilder()
     .setName('burn-grain')
     .setDescription(
-      'Admin only command: Burns users grain by transferring it to the Dai Redemptions account'
+      'Admin only command: Burns users grain by transferring it to the DAI Redemptions account'
     )
     .addStringOption((option) =>
       option
@@ -47,13 +49,10 @@ export default {
           .setStyle('DANGER')
       )
 
-      const paymentsBuffer = readFileSync('./payments.txt')
+      const { ipfsUrl, pinDate } = await fetchReadableDistributionFromIPFS()
 
       await interaction.editReply({
-        content: `Found this distribution file from ${
-          statSync('./payments.txt').mtime
-        }. Are these the amounts that should be burned?`,
-        files: [new MessageAttachment(paymentsBuffer, 'payments.txt')],
+        content: `Found this distribution from ${pinDate} on IPFS: ${ipfsUrl}. Are these the amounts that should be burned?`,
         components: [row],
       })
 
@@ -79,6 +78,8 @@ export default {
 
           const branchName = interaction.options.getString('branch-name', true)
           const ledgerManager = await getLedgerManager(branchName)
+          const distributionRes = await fetch(ipfsUrl)
+          const paymentsBuffer = await distributionRes.arrayBuffer()
           const grainBurnList = formatGrainBurnList(paymentsBuffer)
           await burnGrain(ledgerManager, grainBurnList)
 
