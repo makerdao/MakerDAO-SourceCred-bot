@@ -146,17 +146,37 @@ export const burnGrain = async (
 
   // Transfer grain from all users in the grainBurnList to the DAI redemptions account
   for (const { name, amount } of grainBurnList) {
-    const accountId = ledger.accountByName(name)?.identity.id
-    ledger.transferGrain({
-      from: accountId,
-      to: DAI_REDEMPTIONS_ACCOUNT_ID,
-      amount,
-      memo: null,
-    })
+    const account = ledger.accountByName(name)
+    if (account.active) transferGrain(ledger, account, amount)
+    else transferGrainFromInactive(ledger, account, amount)
   }
 
   // Sync changes with remote ledger (GH instance)
   const persistRes = await ledgerManager.persist()
   if (persistRes.error)
     throw `An error occurred when trying to commit the new ledger: ${persistRes.error}`
+}
+
+const transferGrain = (ledger: any, account: LedgerAccount, amount: string) => {
+  ledger.transferGrain({
+    from: account.identity.id,
+    to: DAI_REDEMPTIONS_ACCOUNT_ID,
+    amount,
+    memo: null,
+  })
+}
+
+const transferGrainFromInactive = (
+  ledger: any,
+  account: LedgerAccount,
+  amount: string
+) => {
+  ledger.activate(account.identity.id)
+  ledger.transferGrain({
+    from: account.identity.id,
+    to: DAI_REDEMPTIONS_ACCOUNT_ID,
+    amount,
+    memo: null,
+  })
+  ledger.deactivate(account.identity.id)
 }
