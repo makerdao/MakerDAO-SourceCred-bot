@@ -6,6 +6,7 @@ import {
   MessageComponentInteraction,
 } from 'discord.js'
 import fetch from 'node-fetch'
+import { NEEDS_OPT_OUT_STATUS } from '../constants'
 
 import {
   handleDiscourseVerify,
@@ -89,7 +90,7 @@ export default {
 
         const userUpdateStatus = await updateUserStatus(
           discourse,
-          'Needs opt out'
+          NEEDS_OPT_OUT_STATUS
         )
         if (userUpdateStatus === 200)
           i.editReply(

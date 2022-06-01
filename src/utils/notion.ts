@@ -1,5 +1,7 @@
 import { Client } from '@notionhq/client'
 
+import { NEEDS_LIKES_STATUS } from '../constants'
+
 const NOTION_AUTHORIZATION_TOKEN = process.env.NOTION_AUTHORIZATION_TOKEN || ''
 const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID || ''
 
@@ -55,7 +57,7 @@ export const pushUserToNotion = async (
         Status: {
           type: 'select',
           select: {
-            name: 'Needs likes',
+            name: NEEDS_LIKES_STATUS,
           },
         },
       },
@@ -99,7 +101,7 @@ export const fetchInactiveUsersFromNotion = async (): Promise<
         {
           property: 'Status',
           select: {
-            equals: 'Needs likes',
+            equals: NEEDS_LIKES_STATUS,
           },
         },
         {

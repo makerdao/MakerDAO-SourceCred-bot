@@ -2,12 +2,7 @@
 import { sourcecred } from 'sourcecred'
 import { User } from './notion'
 
-import {
-  DAI_REDEMPTIONS_ACCOUNT_ID,
-  TOKEN_CONTRACT,
-  ADD_ACTION,
-  REMOVE_ACTION,
-} from '../constants'
+import { DAI_REDEMPTIONS_ACCOUNT_ID, TOKEN_CONTRACT } from '../constants'
 
 interface SCAlias {
   address: string

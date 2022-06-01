@@ -12,6 +12,12 @@ import {
 } from '../utils/sourcecred'
 import { copyLedgerFromGHPages } from '../utils/github'
 import { fetchUsersFromNotion, updateUserStatus } from '../utils/notion'
+import {
+  CONFIRMED_STATUS,
+  NEEDS_LIKES_STATUS,
+  NEEDS_OPT_OUT_STATUS,
+  OPTED_OUT_STATUS,
+} from '../constants'
 
 const SOURCECRED_ADMINS = process.env.SOURCECRED_ADMINS?.split(', ') || []
 
@@ -32,8 +38,8 @@ export default {
       }
       await interaction.deferReply()
 
-      const usersToActivate = await fetchUsersFromNotion('Needs likes')
-      const usersToDeactivate = await fetchUsersFromNotion('Needs opt out')
+      const usersToActivate = await fetchUsersFromNotion(NEEDS_LIKES_STATUS)
+      const usersToDeactivate = await fetchUsersFromNotion(NEEDS_OPT_OUT_STATUS)
       if (!usersToActivate.length && !usersToDeactivate.length) {
         await interaction.editReply(
           'There are currently no users waiting for activation or deactivation'
@@ -92,7 +98,7 @@ export default {
             for (const user of usersActivated) {
               const userUpdateStatus = await updateUserStatus(
                 user.discourse,
-                'Confirmed'
+                CONFIRMED_STATUS
               )
               if (userUpdateStatus !== 200) throw 'Notion error'
               await new Promise((r) => setTimeout(r, 500))
@@ -100,7 +106,7 @@ export default {
             for (const user of usersDeactivated) {
               const userUpdateStatus = await updateUserStatus(
                 user.discourse,
-                'Opted out'
+                OPTED_OUT_STATUS
               )
               if (userUpdateStatus !== 200) throw 'Notion error'
               await new Promise((r) => setTimeout(r, 500))
