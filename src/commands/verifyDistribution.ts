@@ -4,7 +4,6 @@ import fetch from 'node-fetch'
 
 import { fetchDistributionFromIPFS } from '../utils/ipfs'
 
-const SOURCECRED_ADMINS = process.env.SOURCECRED_ADMINS?.split(', ') || []
 const WHITELISTED_USERS = process.env.WHITELISTED_USERS?.split(', ') || []
 
 type GnosisTransactionList = {
@@ -27,12 +26,10 @@ export default {
     ),
   async execute(interaction: CommandInteraction) {
     try {
-      if (
-        !SOURCECRED_ADMINS.includes(interaction.user.id) &&
-        !WHITELISTED_USERS.includes(interaction.user.id)
-      ) {
+      if (!WHITELISTED_USERS.includes(interaction.user.id)) {
         await interaction.reply({
-          content: 'Error: command temporarily available only for testers',
+          content:
+            'Error: this command is only available for whitelisted users',
           ephemeral: true,
         })
         return

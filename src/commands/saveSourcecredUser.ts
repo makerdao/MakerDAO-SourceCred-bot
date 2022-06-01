@@ -14,9 +14,6 @@ import {
 } from '../utils/discourseVerification'
 import { pushUserToNotion } from '../utils/notion'
 
-const SOURCECRED_ADMINS = process.env.SOURCECRED_ADMINS?.split(', ') || []
-const WHITELISTED_USERS = process.env.WHITELISTED_USERS?.split(', ') || []
-
 export default {
   data: new SlashCommandBuilder()
     .setName('opt-in')
@@ -35,17 +32,6 @@ export default {
     ),
   async execute(interaction: CommandInteraction) {
     try {
-      if (
-        !SOURCECRED_ADMINS.includes(interaction.user.id) &&
-        !WHITELISTED_USERS.includes(interaction.user.id)
-      ) {
-        await interaction.reply({
-          content: 'Error: command temporarily available only for testers',
-          ephemeral: true,
-        })
-        return
-      }
-
       await interaction.deferReply({ ephemeral: true })
 
       const rawDiscourse = interaction.options.getString('discourse', true)
