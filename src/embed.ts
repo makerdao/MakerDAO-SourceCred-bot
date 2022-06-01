@@ -141,6 +141,11 @@ export function adminInfoEmbed(): MessageEmbed {
         value:
           'Transfers grain from SC instance users accounts to the Dai Redemptions account after payments have been made (branch-name: name of the GitHub branch created on the `/onboard-users` command)',
       },
+      {
+        name: '/remove-inactive-users',
+        value:
+          'Remove users who do not meet the opt-in requirements from Notion',
+      },
     ],
     timestamp: new Date(),
     footer: {
