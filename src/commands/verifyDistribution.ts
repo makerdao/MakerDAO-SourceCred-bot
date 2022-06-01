@@ -4,7 +4,7 @@ import fetch from 'node-fetch'
 
 import { fetchDistributionFromIPFS } from '../utils/ipfs'
 
-const WHITELISTED_USERS = process.env.WHITELISTED_USERS?.split(', ') || []
+const SOURCECRED_ADMINS = process.env.SOURCECRED_ADMINS?.split(', ') || []
 
 type GnosisTransactionList = {
   dataDecoded: {
@@ -26,10 +26,9 @@ export default {
     ),
   async execute(interaction: CommandInteraction) {
     try {
-      if (!WHITELISTED_USERS.includes(interaction.user.id)) {
+      if (!SOURCECRED_ADMINS.includes(interaction.user.id)) {
         await interaction.reply({
-          content:
-            'Error: this command is only available for whitelisted users',
+          content: 'Error: this command is only available for admins',
           ephemeral: true,
         })
         return
