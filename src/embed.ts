@@ -105,12 +105,12 @@ export function infoEmbed(): MessageEmbed {
       {
         name: '/opt-in [discourse] [address]',
         value:
-          'Allows users to opt in for SC distributions. Checks Discourse account ownership and pushes [discourse] username and wallet [address] to IPFS to be eventually synced to the SC instance',
+          'Allows users to opt in for SC distributions. Checks Discourse account ownership and pushes [discourse] username and wallet [address] to Notion to be eventually synced to the SC instance',
       },
       {
         name: '/opt-out [discourse]',
         value:
-          'Allows users to opt out of SC distributions. Checks Discourse account ownership and pushes [discourse] username to IPFS to be eventually deactivated on the SC instance',
+          'Allows users to opt out of SC distributions. Checks Discourse account ownership and pushes [discourse] username to Notion to be eventually deactivated on the SC instance',
       },
     ],
     timestamp: new Date(),

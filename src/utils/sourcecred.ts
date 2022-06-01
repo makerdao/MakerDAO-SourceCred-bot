@@ -1,6 +1,6 @@
 // @ts-ignore
 import { sourcecred } from 'sourcecred'
-import { User } from './ipfs'
+import { User } from './notion'
 
 import {
   DAI_REDEMPTIONS_ACCOUNT_ID,
@@ -87,46 +87,53 @@ export const getLedgerManager = (branch: string): any => {
 
 export const setSCPayoutAddressAndActivateOrRemove = async (
   ledgerManager: any,
-  userList: User[]
-): Promise<User[]> => {
+  usersToActivate: User[],
+  usersToDeactivate: User[]
+): Promise<{ usersActivated: User[]; usersDeactivated: User[] }> => {
   await ledgerManager.reloadLedger()
   const ledger = ledgerManager.ledger
-  let modifiedUsers: User[] = []
+  const usersActivated: User[] = []
+  const usersDeactivated: User[] = []
 
-  for (const user of userList) {
+  for (const user of usersToActivate) {
     const account = ledger.accountByAddress(discourseAddress(user.discourse))
     if (!account) continue
 
-    if (user.action === ADD_ACTION) {
-      // Add wallet address
-      if (
-        !account.payoutAddresses.size ||
-        account.payoutAddresses.values().next().value !== user.address
+    // Add wallet address
+    if (
+      !account.payoutAddresses.size ||
+      account.payoutAddresses.values().next().value !== user.address
+    )
+      ledger.setPayoutAddress(
+        account.identity.id, // user identity id
+        user.address, // user wallet address
+        '1', // Ethereum mainnet chain id
+        TOKEN_CONTRACT // DAI token address
       )
-        ledger.setPayoutAddress(
-          account.identity.id, // user identity id
-          user.address, // user wallet address
-          '1', // Ethereum mainnet chain id
-          TOKEN_CONTRACT // DAI token address
-        )
 
-      // Activate account
-      if (!account.active) ledger.activate(account.identity.id)
-    } else if (user.action === REMOVE_ACTION) {
-      // Remove wallet address
-      if (!account.payoutAddresses.size)
-        ledger.setPayoutAddress(
-          account.identity.id, // user identity id
-          null, // user wallet address
-          '1', // Ethereum mainnet chain id
-          TOKEN_CONTRACT // DAI token address
-        )
+    // Activate account
+    if (!account.active) ledger.activate(account.identity.id)
 
-      // Deactivate account
-      if (account.active) ledger.deactivate(account.identity.id)
-    }
+    usersActivated.push(user)
+  }
 
-    modifiedUsers.push(user)
+  for (const user of usersToDeactivate) {
+    const account = ledger.accountByAddress(discourseAddress(user.discourse))
+    if (!account) continue
+
+    // Remove wallet address
+    if (account.payoutAddresses.size)
+      ledger.setPayoutAddress(
+        account.identity.id, // user identity id
+        null, // user wallet address
+        '1', // Ethereum mainnet chain id
+        TOKEN_CONTRACT // DAI token address
+      )
+
+    // Deactivate account
+    if (account.active) ledger.deactivate(account.identity.id)
+
+    usersDeactivated.push(user)
   }
 
   // Sync changes with remote ledger (GH instance)
@@ -134,7 +141,10 @@ export const setSCPayoutAddressAndActivateOrRemove = async (
   if (persistRes.error)
     throw `An error occurred when trying to commit the new ledger: ${persistRes.error}`
 
-  return modifiedUsers
+  return {
+    usersActivated,
+    usersDeactivated,
+  }
 }
 
 export const burnGrain = async (

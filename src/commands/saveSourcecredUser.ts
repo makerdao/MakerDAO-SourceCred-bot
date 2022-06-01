@@ -12,8 +12,7 @@ import {
   handleDiscourseVerify,
   handleDiscourseCheck,
 } from '../utils/discourseVerification'
-import { pushUserToIPFS } from '../utils/ipfs'
-import { ADD_ACTION } from '../constants'
+import { pushUserToNotion } from '../utils/notion'
 
 const SOURCECRED_ADMINS = process.env.SOURCECRED_ADMINS?.split(', ') || []
 const WHITELISTED_USERS = process.env.WHITELISTED_USERS?.split(', ') || []
@@ -115,12 +114,16 @@ export default {
 
         if (!isDiscourseVerified) return
 
-        const userSaved = await pushUserToIPFS(discourse, address, ADD_ACTION)
-        if (userSaved)
-          i.editReply('User information successfully pushed to IPFS!')
+        const userSavedStatus = await pushUserToNotion(discourse, address)
+        if (userSavedStatus === 201)
+          i.editReply('✅ User information successfully saved!')
+        else if (userSavedStatus === 409)
+          i.editReply(
+            '❌ You already opted in for SourceCred, contact SourceCred admins if you wish to update your information'
+          )
         else
           i.editReply(
-            'There was a problem while trying to push user information to IPFS, please try again'
+            '❌ There was a problem while trying to save user information, please try again later'
           )
       })
     } catch (err) {

@@ -6,12 +6,12 @@ import {
   MessageComponentInteraction,
 } from 'discord.js'
 
-import { fetchUsersFromIPFS, removeUsersFromIPFS } from '../utils/ipfs'
 import {
   getLedgerManager,
   setSCPayoutAddressAndActivateOrRemove,
 } from '../utils/sourcecred'
 import { copyLedgerFromGHPages } from '../utils/github'
+import { fetchUsersFromNotion, updateUserStatus } from '../utils/notion'
 
 const SOURCECRED_ADMINS = process.env.SOURCECRED_ADMINS?.split(', ') || []
 
@@ -19,7 +19,7 @@ export default {
   data: new SlashCommandBuilder()
     .setName('onboard-users')
     .setDescription(
-      'Admin only command: activates user identities in the SourceCred instance'
+      'Admin only command: activates and/or deactivates user identities in the SourceCred instance'
     ),
   async execute(interaction: CommandInteraction) {
     try {
@@ -32,20 +32,23 @@ export default {
       }
       await interaction.deferReply()
 
-      const userInformationList = await fetchUsersFromIPFS()
-      if (!userInformationList.length) {
+      const usersToActivate = await fetchUsersFromNotion('Needs likes')
+      const usersToDeactivate = await fetchUsersFromNotion('Needs opt out')
+      if (!usersToActivate.length && !usersToDeactivate.length) {
         await interaction.editReply(
-          'There are currently no users waiting for activation'
+          'There are currently no users waiting for activation or deactivation'
         )
         return
       }
 
       const newBranchName = await copyLedgerFromGHPages()
       const ledgerManager = getLedgerManager(newBranchName)
-      const modifiedUsers = await setSCPayoutAddressAndActivateOrRemove(
-        ledgerManager,
-        userInformationList
-      )
+      const { usersActivated, usersDeactivated } =
+        await setSCPayoutAddressAndActivateOrRemove(
+          ledgerManager,
+          usersToActivate,
+          usersToDeactivate
+        )
 
       const row = new MessageActionRow().addComponents(
         new MessageButton()
@@ -59,7 +62,7 @@ export default {
       )
 
       await interaction.editReply({
-        content: `Users successfully activated in new branch \`${newBranchName}\`. Attempting to remove activated users from IPFS, do you wish to continue?`,
+        content: `Users successfully activated and/or deactivated in new branch \`${newBranchName}\`. Attempting to update user statuses on Notion, do you wish to continue?`,
         components: [row],
       })
 
@@ -79,19 +82,36 @@ export default {
 
         if (i.customId === 'reject') {
           await i.followUp(
-            'Command cancelled, users will not be removed from IPFS.'
+            'Command cancelled, user statuses will not be updated on Notion'
           )
           return
         } else {
-          await i.followUp('Removing users from IPFS, please wait...')
+          await i.followUp('Updating user statuses on Notion, please wait...')
 
           try {
-            await removeUsersFromIPFS(modifiedUsers)
-            await i.followUp('Modified users successfully removed from IPFS')
-          } catch (ipfsErr) {
-            console.log(ipfsErr)
+            for (const user of usersActivated) {
+              const userUpdateStatus = await updateUserStatus(
+                user.discourse,
+                'Confirmed'
+              )
+              if (userUpdateStatus !== 200) throw 'Notion error'
+              await new Promise((r) => setTimeout(r, 500))
+            }
+            for (const user of usersDeactivated) {
+              const userUpdateStatus = await updateUserStatus(
+                user.discourse,
+                'Opted out'
+              )
+              if (userUpdateStatus !== 200) throw 'Notion error'
+              await new Promise((r) => setTimeout(r, 500))
+            }
             await i.followUp(
-              'There was an issue trying to remove users from IPFS, please check the logs'
+              "Modified users' statuses successfully updated on Notion"
+            )
+          } catch (notionErr) {
+            console.log(notionErr)
+            await i.followUp(
+              'There was an issue trying to update user statuses on Notion, please check the logs'
             )
           }
         }
@@ -100,7 +120,9 @@ export default {
       console.log(err)
       if (typeof err === 'string') interaction.editReply(err)
       else
-        interaction.editReply('There was an internal error, please try again')
+        interaction.editReply(
+          'There was an internal error, please try again later'
+        )
     }
   },
 }

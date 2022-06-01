@@ -11,8 +11,7 @@ import {
   handleDiscourseVerify,
   handleDiscourseCheck,
 } from '../utils/discourseVerification'
-import { pushUserToIPFS } from '../utils/ipfs'
-import { REMOVE_ACTION } from '../constants'
+import { updateUserStatus } from '../utils/notion'
 
 const SOURCECRED_ADMINS = process.env.SOURCECRED_ADMINS?.split(', ') || []
 
@@ -90,7 +89,7 @@ export default {
         )
         await i.update({
           content: isDiscourseVerified
-            ? 'Discourse username successfully verified, pushing remove action to IPFS...'
+            ? 'Discourse username successfully verified, updating status on the database...'
             : 'Discourse username verification failed, please try again',
           embeds: [],
           components: [],
@@ -98,13 +97,21 @@ export default {
 
         if (!isDiscourseVerified) return
 
-        const userSaved = await pushUserToIPFS(discourse, '0x0', REMOVE_ACTION)
-        if (userSaved)
-          i.editReply('User information successfully pushed to IPFS!')
-        else
+        const userUpdateStatus = await updateUserStatus(
+          discourse,
+          'Needs opt out'
+        )
+        if (userUpdateStatus === 200)
           i.editReply(
-            'There was a problem while trying to push user information to IPFS, please try again'
+            '✅ User status successfully updated on the database, you will be opted out on the next SourceCred instance update'
           )
+        else if (userUpdateStatus === 404)
+          i.editReply('❌ User information was not found on the database')
+        else if (userUpdateStatus === 500) {
+          i.editReply(
+            '❌ There was a problem while trying to update user information on the database, please try again later'
+          )
+        }
       })
     } catch (err) {
       console.error(err)
@@ -116,7 +123,7 @@ export default {
         })
       else
         interaction.reply({
-          content: 'There was a server error, please try again',
+          content: 'There was a server error, please try again later',
           ephemeral: true,
         })
     }

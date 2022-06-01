@@ -8,17 +8,17 @@ Discord bot to automate SourceCred instance interactions
 
 - `/info`: information about available SourceCred commands
 - `/fetch-cred [user]`: fetches cred and grain information for specified Discourse username
-- `/opt-in [discourse] [address]`: allows users to opt in for SC distributions. Checks Discourse account ownership and pushes username and wallet address to IPFS to be eventually synced to the SC instance
+- `/opt-in [discourse] [address]`: allows users to opt in for SC distributions. Checks Discourse account ownership and pushes username and wallet address to Notion to be eventually synced to the SC instance
   - discourse: discourse username
   - address: wallet address
-- `/opt-out [discourse]`: allows users to opt out of SC distributions. Checks Discourse account ownership and pushes [discourse] username to IPFS to be eventually deactivated on the SC instance
+- `/opt-out [discourse]`: allows users to opt out of SC distributions. Checks Discourse account ownership and pushes [discourse] username to Notion to be eventually deactivated on the SC instance
   - discourse: discourse username
 
 ### Admin only commands
 
 - `/admin-info`: information about available SourceCred admin commands
 - `/payments-csv [threshold]`: generates SC payments CSV file filtering by users who have accumulated an amount greater than or equal to the threshold passed (generated CSV file is compatible with Gnosis Safe CSV Airdrop app)
-- `/onboard-users`: fetches user list from IPFS, creates a new branch on GitHub repo, adds wallet addresses into users SC identities and activates user accounts in the SC instance. Returns the name of the new GitHub branch created
+- `/onboard-users`: fetches user list from Notion, creates a new branch on GitHub repo, adds wallet addresses into users SC identities and activates user accounts in the SC instance. Returns the name of the new GitHub branch created
 - `/burn-grain [branch-name]`: transfers grain from SC instance users accounts to the burn grain account
   - branch-name: name of the GitHub branch created on the `/onboard-users` command
 
