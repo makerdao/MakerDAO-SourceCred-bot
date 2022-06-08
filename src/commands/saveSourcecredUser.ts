@@ -76,7 +76,7 @@ export default {
         interaction.channel ||
         (await interaction.client.channels.fetch(interaction.channelId))
 
-      if (!interactionChannel?.isText())
+      if (!interactionChannel?.isText() && !interactionChannel?.isThread())
         throw 'There was an error fetching the Discord channel'
       const filter = (i: MessageComponentInteraction) =>
         i.customId === 'confirm' && i.user.id === interaction.user.id
