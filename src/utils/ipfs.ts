@@ -106,16 +106,18 @@ type TransactionData = {
   amount: string
 }
 
-export const fetchDistributionFromIPFS = async (): Promise<
-  TransactionData[]
-> => {
+export const fetchDistributionFromIPFS = async (
+  isDelegate?: boolean
+): Promise<TransactionData[]> => {
   const pinListRes = await fetch(
     'https://api.pinata.cloud/data/pinList?status=pinned',
     { headers: { Authorization: PINATA_AUTHORIZATION_TOKEN } }
   )
   const pinListBody = await pinListRes.json()
   const pinHash: string = pinListBody.rows.find(
-    (pin: Row) => pin.metadata.name === 'distribution.csv'
+    (pin: Row) =>
+      pin.metadata.name ===
+      (isDelegate ? 'delegate_payments.csv' : 'distribution.csv')
   )?.ipfs_pin_hash
 
   if (!pinHash) throw 'No distribution CSV file was found on IPFS'

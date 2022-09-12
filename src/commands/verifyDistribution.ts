@@ -23,6 +23,12 @@ export default {
         .setName('tx-hash')
         .setDescription('Hash of the transaction on the Gnosis Safe')
         .setRequired(true)
+    )
+    .addBooleanOption((option) =>
+      option
+        .setName('delegate')
+        .setDescription('Whether or not it is a delegate distribution')
+        .setRequired(false)
     ),
   async execute(interaction: CommandInteraction) {
     try {
@@ -57,7 +63,8 @@ export default {
       )
 
       // Fetch distribution from IPFS
-      const ipfsData = await fetchDistributionFromIPFS()
+      const delegateOption = interaction.options.getBoolean('delegate', false)
+      const ipfsData = await fetchDistributionFromIPFS(delegateOption || false)
 
       // Compare data
       if (gnosisData.length !== ipfsData.length) {
